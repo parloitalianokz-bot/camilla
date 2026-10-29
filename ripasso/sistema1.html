@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Алгебра для Камиллы — Системы уравнений</title>
+  
+  <!-- MathJax per il rendering delle formule matematiche TeX -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  
+  <!-- Confetti.js per la celebrazione delle risposte corrette -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --primary: #4A90E2;
+      --primary-dark: #357ABD;
+      --secondary: #9B59B6;
+      --accent: #FF6B6B;
+      --success: #2ECC71;
+      --warning: #F1C40F;
+      --text-dark: #2C3E50;
+      --text-muted: #7F8C8D;
+      --border-color: #E2E8F0;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-dark);
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .sync-status {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: #eef;
+      color: var(--primary-dark);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      color: var(--secondary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 8px;
+    }
+
+    /* Tabella accordion per la teoria */
+    .theory-tab {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .theory-header {
+      padding: 14px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #edf2f7;
+      transition: background 0.2s;
+    }
+
+    .theory-header:hover {
+      background: #e2e8f0;
+    }
+
+    .theory-content {
+      padding: 18px;
+      display: none;
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .theory-tab.active .theory-content {
+      display: block;
+    }
+
+    .step-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      margin: 10px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    /* Sezione Esercizi */
+    .exercise-box {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+      background: #fff;
+    }
+
+    .exercise-header {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+    }
+
+    .math-display {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 15px 0;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-group label {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { background: var(--primary-dark); }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text-dark);
+    }
+
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+      font-weight: 600;
+    }
+
+    .feedback.correct {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .feedback.incorrect {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .solution-details {
+      margin-top: 12px;
+      padding: 14px;
+      background: #fff8e1;
+      border-radius: 8px;
+      border-left: 4px solid var(--warning);
+      display: none;
+    }
+
+    .scratchpad {
+      width: 100%;
+      height: 80px;
+      margin-top: 10px;
+      padding: 8px;
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      resize: vertical;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div id="syncStatus" class="sync-status">🔄 Синхронизация...</div>
+      <h1>📐 Системы линейных уравнений</h1>
+      <p class="subtitle">Интерактивный тренажер по алгебре для Камиллы</p>
+    </header>
+
+    <!-- СЕКЦИЯ ТЕОРИИ И ШПАРГАЛОК -->
+    <div class="card">
+      <div class="card-title">📚 Алгебраический шпаргалкин (Важные правила)</div>
+      
+      <!-- 1. Метод сложения -->
+      <div class="theory-tab">
+        <div class="theory-header" onclick="toggleTab(this)">
+          <span>1. Метод сложения (Elimination Method) с примером</span>
+          <span>▼</span>
+        </div>
+        <div class="theory-content">
+          <p>Метод сложения используется, когда коэффициенты при одной из переменных являются <b>противоположными числами</b> (например, $-3y$ и $+3y$). При сложении двух уравнений эта переменная взаимно уничтожается ($0$).</p>
+
+          <p style="margin-top: 10px;"><b>Рассмотрим пример системы:</b></p>
+          <div class="math-display">
+            $$\begin{cases} 4x - 3y = 11 \\ 2x + 3y = 13 \end{cases}$$
+          </div>
+
+          <div class="step-box">
+            <b>Шаг 1: Почленное сложение уравнений</b><br>
+            Заметим, что коэффициенты при $y$ равны $-3$ и $+3$. Сложим левые и правые части обоих уравнений:
+            $$(4x + 2x) + (-3y + 3y) = 11 + 13$$
+            $$6x + 0 = 24 \implies 6x = 24 \implies \mathbf{x = 4}$$
+          </div>
+
+          <div class="step-box">
+            <b>Шаг 2: Нахождение второй переменной ($y$)</b><br>
+            Подставим найденное значение $x = 4$ в любое из исходных уравнений (возьмем второе: $2x + 3y = 13$):
+            $$2(4) + 3y = 13 \implies 8 + 3y = 13$$
+            $$3y = 13 - 8 \implies 3y = 5 \implies \mathbf{y = \frac{5}{3}} = 1\frac{2}{3}$$
+          </div>
+
+          <p style="text-align: center; font-weight: bold; margin-top: 10px;">
+            Ответ: $(x, y) = (4, 1\frac{2}{3})$
+          </p>
+        </div>
+      </div>
+
+      <!-- 2. Метод подстановки -->
+      <div class="theory-tab">
+        <div class="theory-header" onclick="toggleTab(this)">
+          <span>2. Метод подстановки (Substitution Method)</span>
+          <span>▼</span>
+        </div>
+        <div class="theory-content">
+          <p>Рассмотрим систему на понятном примере:</p>
+          <div class="math-display">
+            $$\begin{cases} 2x + y = 7 \\ 3x - 2y = 7 \end{cases}$$
+          </div>
+          
+          <div class="step-box">
+            <b>Шаг 1: Изолируем переменную</b><br>
+            В первом уравнении переменная $y$ имеет коэффициент $1$. Выразим её через $x$:
+            $$2x + y = 7 \implies \mathbf{y = 7 - 2x}$$
+          </div>
+
+          <div class="step-box">
+            <b>Шаг 2: Подставляем во второе уравнение</b><br>
+            Подставим полученное выражение $(7 - 2x)$ вместо $y$ во второе уравнение:
+            $$3x - 2(\mathbf{7 - 2x}) = 7$$
+          </div>
+
+          <div class="step-box">
+            <b>Шаг 3: Решаем уравнение относительно $x$</b><br>
+            Раскрываем скобки и приводим подобные слагаемые:
+            $$3x - 14 + 4x = 7$$
+            $$7x - 14 = 7 \implies 7x = 21 \implies \mathbf{x = 3}$$
+          </div>
+
+          <div class="step-box">
+            <b>Шаг 4: Находим $y$</b><br>
+            Подставляем найденное $x = 3$ в формулу из Шага 1 ($y = 7 - 2x$):
+            $$y = 7 - 2(3) = 7 - 6 \implies \mathbf{y = 1}$$
+          </div>
+
+          <p style="text-align: center; font-weight: bold; margin-top: 10px;">
+            Ответ: $(x, y) = (3, 1)$
+          </p>
+        </div>
+      </div>
+
+      <!-- 3. Работа с дробями -->
+      <div class="theory-tab">
+        <div class="theory-header" onclick="toggleTab(this)">
+          <span>3. Работа с дробями (Избавление от знаменателей)</span>
+          <span>▼</span>
+        </div>
+        <div class="theory-content">
+          <p>Чтобы упростить уравнение с дробями, умножаем <b>все его члены</b> на наименьший общий знаменатель (НОК).</p>
+          
+          <div class="math-display">
+            $$\frac{2x-1}{3} - \frac{2y+7}{7} = \frac{1}{21} \quad \xrightarrow{\times 21} \quad ?$$
+          </div>
+
+          <p>Умножаем каждый член уравнения на $21$:</p>
+          <ul>
+            <li><b>Первый член:</b> $21 \cdot \frac{2x - 1}{3} = 7(2x - 1) = 14x - 7$</li>
+            <li><b>Второй член:</b> $-21 \cdot \frac{2y + 7}{7} = -3(2y + 7) = -6y - 21$</li>
+            <li><b>Правая часть:</b> $21 \cdot \frac{1}{21} = 1$</li>
+          </ul>
+
+          <div class="step-box" style="margin-top: 10px;">
+            Собираем линейное уравнение без дробей:
+            $$14x - 7 - 6y - 21 = 1$$
+            $$14x - 6y - 28 = 1 \implies \mathbf{14x - 6y = 29}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- РАЗБОР ПРИМЕРА № 32.1 -->
+    <div class="card">
+      <div class="card-title">💡 Разбор примера № 32.1 (С пояснениями)</div>
+      <p>Рассмотрим решение первой системы из задания:</p>
+      
+      <div class="math-display">
+        $$\begin{cases} 3x - 2y = 7 \\ 2x + 2y = 8 \end{cases}$$
+      </div>
+
+      <div class="step-box">
+        <b>Шаг 1: Почленное сложение уравнений</b><br>
+        Заметим, что коэффициенты при $y$ равны $-2$ и $+2$ (противоположные числа). Сложим уравнения:
+        $$(3x + 2x) + (-2y + 2y) = 7 + 8$$
+        $$5x + 0 = 15 \implies 5x = 15 \implies \mathbf{x = 3}$$
+      </div>
+
+      <div class="step-box">
+        <b>Шаг 2: Нахождение переменной $y$</b><br>
+        Подставим значение $x = 3$ во второе уравнение ($2x + 2y = 8$):
+        $$2(3) + 2y = 8 \implies 6 + 2y = 8$$
+        $$2y = 8 - 6 \implies 2y = 2 \implies \mathbf{y = 1}$$
+      </div>
+
+      <p style="text-align: center; font-weight: bold; margin-top: 10px; color: var(--success);">
+        Решение системы: пара чисел $(x, y) = (3, 1)$
+      </p>
+    </div>
+
+    <!-- СЕКЦИЯ САМОСТОЯТЕЛЬНОЙ РАБОТЫ -->
+    <div class="card">
+      <div class="card-title">✏️ Самостоятельное решение (Задания 32.2, 32.3, 32.4, 32.8)</div>
+      <p style="margin-bottom: 15px; color: var(--text-muted);">Введите ответы в виде целых чисел, десятичных дробей (через точку или запятую) или обыкновенных дробей (например, <code>17/14</code> или <code>1 3/14</code>).</p>
+
+      <!-- № 32.2 -->
+      <div class="exercise-box" id="ex-32-2">
+        <div class="exercise-header">Задание № 32.2</div>
+        <div class="math-display">
+          $$\begin{cases} 7x - 0{,}4y = -5 \\ 4x - 0{,}4y = 10 \end{cases}$$
+        </div>
+        
+        <div class="inputs-grid">
+          <div class="input-group">
+            <label>x =</label>
+            <input type="text" id="ex2-x" placeholder="Значение x">
+          </div>
+          <div class="input-group">
+            <label>y =</label>
+            <input type="text" id="ex2-y" placeholder="Значение y">
+          </div>
+        </div>
+
+        <button class="btn" onclick="checkExercise(2)">Проверить</button>
+        <button class="btn btn-secondary" onclick="toggleSolution(2)">Решение</button>
+
+        <textarea class="scratchpad" placeholder="Черновик для заметок..." id="pad-2"></textarea>
+
+        <div class="feedback" id="fb-2"></div>
+        <div class="solution-details" id="sol-2">
+          <b>Подробное решение:</b><br>
+          Вычтем второе уравнение из первого, чтобы исключить $y$:
+          $$(7x - 4x) + (-0{,}4y - (-0{,}4y)) = -5 - 10$$
+          $$3x = -15 \implies \mathbf{x = -5}$$
+          Подставим $x = -5$ во второе уравнение:
+          $$4(-5) - 0{,}4y = 10 \implies -20 - 0{,}4y = 10$$
+          $$-0{,}4y = 30 \implies y = \frac{30}{-0{,}4} \implies \mathbf{y = -75}$$
+          <b>Ответ:</b> $x = -5$, $y = -75$
+        </div>
+      </div>
+
+      <!-- № 32.3 -->
+      <div class="exercise-box" id="ex-32-3">
+        <div class="exercise-header">Задание № 32.3</div>
+        <div class="math-display">
+          $$\begin{cases} 5x - 0{,}6y = 8 \\ 2x - 0{,}3y = 16 \end{cases}$$
+        </div>
+
+        <div class="inputs-grid">
+          <div class="input-group">
+            <label>x =</label>
+            <input type="text" id="ex3-x" placeholder="Значение x">
+          </div>
+          <div class="input-group">
+            <label>y =</label>
+            <input type="text" id="ex3-y" placeholder="Значение y">
+          </div>
+        </div>
+
+        <button class="btn" onclick="checkExercise(3)">Проверить</button>
+        <button class="btn btn-secondary" onclick="toggleSolution(3)">Решение</button>
+
+        <textarea class="scratchpad" placeholder="Черновик для заметок..." id="pad-3"></textarea>
+
+        <div class="feedback" id="fb-3"></div>
+        <div class="solution-details" id="sol-3">
+          <b>Подробное решение:</b><br>
+          Умножим второе уравнение на $2$, чтобы коэффициенты при $y$ стали равными:
+          $$2(2x - 0{,}3y) = 2(16) \implies 4x - 0{,}6y = 32$$
+          Вычтем полученное уравнение из первого:
+          $$(5x - 4x) + (-0{,}6y - (-0{,}6y)) = 8 - 32$$
+          $$\mathbf{x = -24}$$
+          Подставим $x = -24$ в первое уравнение:
+          $$5(-24) - 0{,}6y = 8 \implies -120 - 0{,}6y = 8$$
+          $$-0{,}6y = 128 \implies y = \frac{128}{-0{,}6} = -\frac{1280}{6} \implies \mathbf{y = -\frac{640}{3}} \approx -213.33$$
+          <b>Ответ:</b> $x = -24$, $y = -640/3$ (или $-213\frac{1}{3}$)
+        </div>
+      </div>
+
+      <!-- № 32.4 -->
+      <div class="exercise-box" id="ex-32-4">
+        <div class="exercise-header">Задание № 32.4</div>
+        <div class="math-display">
+          $$\begin{cases} -5x + 7y = 15 \\ 3x - 4y = 13 \end{cases}$$
+        </div>
+
+        <div class="inputs-grid">
+          <div class="input-group">
+            <label>x =</label>
+            <input type="text" id="ex4-x" placeholder="Значение x">
+          </div>
+          <div class="input-group">
+            <label>y =</label>
+            <input type="text" id="ex4-y" placeholder="Значение y">
+          </div>
+        </div>
+
+        <button class="btn" onclick="checkExercise(4)">Проверить</button>
+        <button class="btn btn-secondary" onclick="toggleSolution(4)">Решение</button>
+
+        <textarea class="scratchpad" placeholder="Черновик для заметок..." id="pad-4"></textarea>
+
+        <div class="feedback" id="fb-4"></div>
+        <div class="solution-details" id="sol-4">
+          <b>Подробное решение:</b><br>
+          Умножим первое уравнение на $3$, а второе — на $5$:
+          $$\begin{cases} -15x + 21y = 45 \\ 15x - 20y = 65 \end{cases}$$
+          Сложим два уравнения:
+          $$(-15x + 15x) + (21y - 20y) = 45 + 65 \implies \mathbf{y = 110}$$
+          Подставим $y = 110$ во второе исходное уравнение:
+          $$3x - 4(110) = 13 \implies 3x - 440 = 13$$
+          $$3x = 453 \implies \mathbf{x = 151}$$
+          <b>Ответ:</b> $x = 151$, $y = 110$
+        </div>
+      </div>
+
+      <!-- № 32.8 -->
+      <div class="exercise-box" id="ex-32-8">
+        <div class="exercise-header">Задание № 32.8 (С работой над дробями)</div>
+        <div class="math-display">
+          $$\begin{cases} \frac{2x-1}{3} - \frac{2y+7}{7} = \frac{1}{21} \\[8pt] 4x - \frac{8-2y}{7} = 3\frac{1}{7} \end{cases}$$
+        </div>
+
+        <div class="inputs-grid">
+          <div class="input-group">
+            <label>x =</label>
+            <input type="text" id="ex8-x" placeholder="Значение x">
+          </div>
+          <div class="input-group">
+            <label>y =</label>
+            <input type="text" id="ex8-y" placeholder="Значение y">
+          </div>
+        </div>
+
+        <button class="btn" onclick="checkExercise(8)">Проверить</button>
+        <button class="btn btn-secondary" onclick="toggleSolution(8)">Решение</button>
+
+        <textarea class="scratchpad" placeholder="Черновик для заметок..." id="pad-8"></textarea>
+
+        <div class="feedback" id="fb-8"></div>
+        <div class="solution-details" id="sol-8">
+          <b>Подробное решение:</b><br>
+          <b>Уравнение 1:</b> Умножаем на $21$:
+          $$7(2x - 1) - 3(2y + 7) = 1 \implies 14x - 7 - 6y - 21 = 1 \implies \mathbf{14x - 6y = 29}$$
+          
+          <b>Уравнение 2:</b> Умножаем на $7$:
+          $$28x - (8 - 2y) = 22 \implies 28x - 8 + 2y = 22 \implies \mathbf{28x + 2y = 30}$$
+          
+          Умножим второе уравнение на $3$ и сложим с первым:
+          $$3(28x + 2y) = 3(30) \implies 84x + 6y = 90$$
+          $$(14x + 84x) + (-6y + 6y) = 29 + 90 \implies 98x = 119 \implies \mathbf{x = \frac{17}{14}}$$
+          
+          Найдем $y$:
+          $$2y = 30 - 28\left(\frac{17}{14}\right) = 30 - 34 = -4 \implies \mathbf{y = -2}$$
+          <b>Ответ:</b> $x = 17/14$ (или $1\frac{3}{14}$), $y = -2$
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      Удачи в учебе, Камилла! Ты отлично справишься с алгеброй! 🌟
+    </footer>
+  </div>
+
+  <script>
+    // База правильных ответов
+    const SOLUTIONS = {
+      2: { x: -5, y: -75 },
+      3: { x: -24, y: -640/3 },
+      4: { x: 151, y: 110 },
+      8: { x: 17/14, y: -2 }
+    };
+
+    function parseMathInput(str) {
+      if (!str) return NaN;
+      str = str.trim().replace(',', '.');
+      
+      if (str.includes(' ')) {
+        const parts = str.split(' ');
+        if (parts.length === 2) {
+          const whole = parseFloat(parts[0]);
+          const fracParts = parts[1].split('/');
+          if (fracParts.length === 2) {
+            const num = parseFloat(fracParts[0]);
+            const den = parseFloat(fracParts[1]);
+            return whole >= 0 ? whole + (num / den) : whole - (num / den);
+          }
+        }
+      }
+
+      if (str.includes('/')) {
+        const parts = str.split('/');
+        if (parts.length === 2) {
+          return parseFloat(parts[0]) / parseFloat(parts[1]);
+        }
+      }
+
+      return parseFloat(str);
+    }
+
+    function toggleTab(header) {
+      const tab = header.parentElement;
+      tab.classList.toggle('active');
+    }
+
+    function toggleSolution(exNum) {
+      const sol = document.getElementById(`sol-${exNum}`);
+      sol.style.display = sol.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function checkExercise(exNum) {
+      const userX = parseMathInput(document.getElementById(`ex${exNum}-x`).value);
+      const userY = parseMathInput(document.getElementById(`ex${exNum}-y`).value);
+      const fb = document.getElementById(`fb-${exNum}`);
+
+      const correct = SOLUTIONS[exNum];
+      const eps = 0.02;
+
+      const isXCorrect = !isNaN(userX) && Math.abs(userX - correct.x) < eps;
+      const isYCorrect = !isNaN(userY) && Math.abs(userY - correct.y) < eps;
+
+      fb.style.display = 'block';
+
+      if (isXCorrect && isYCorrect) {
+        fb.className = 'feedback correct';
+        fb.innerHTML = '🎉 Отлично! Все значения найдены верно!';
+        
+        if (window.confetti) {
+          confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+        }
+      } else {
+        fb.className = 'feedback incorrect';
+        let msg = 'Пока не совсем верно: ';
+        if (!isXCorrect) msg += 'проверь x; ';
+        if (!isYCorrect) msg += 'проверь y; ';
+        fb.innerHTML = msg + 'попробуй еще раз или загляни в решение!';
+      }
+
+      saveProgress();
+    }
+
+    const FIREBASE_URL = 'https://compiti-bimbe-default-rtdb.europe-west1.firebasedatabase.app/camilla_algebra.json';
+
+    function saveProgress() {
+      const data = {
+        timestamp: new Date().toISOString(),
+        pads: {
+          2: document.getElementById('pad-2').value,
+          3: document.getElementById('pad-3').value,
+          4: document.getElementById('pad-4').value,
+          8: document.getElementById('pad-8').value,
+        },
+        inputs: {
+          2: { x: document.getElementById('ex2-x').value, y: document.getElementById('ex2-y').value },
+          3: { x: document.getElementById('ex3-x').value, y: document.getElementById('ex3-y').value },
+          4: { x: document.getElementById('ex4-x').value, y: document.getElementById('ex4-y').value },
+          8: { x: document.getElementById('ex8-x').value, y: document.getElementById('ex8-y').value }
+        }
+      };
+
+      localStorage.setItem('camilla_algebra_data', JSON.stringify(data));
+
+      const statusEl = document.getElementById('syncStatus');
+      statusEl.textContent = '🔄 Сохранение...';
+
+      fetch(FIREBASE_URL, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(() => {
+        statusEl.textContent = '☁️ Сохранено';
+        statusEl.style.background = '#e6fffa';
+      })
+      .catch(() => {
+        statusEl.textContent = '💾 Локально';
+        statusEl.style.background = '#fff5f5';
+      });
+    }
+
+    function loadProgress() {
+      fetch(FIREBASE_URL)
+      .then(res => res.json())
+      .then(data => {
+        if (data) applyData(data);
+        else loadFromLocalStorage();
+      })
+      .catch(() => loadFromLocalStorage());
+    }
+
+    function loadFromLocalStorage() {
+      const local = localStorage.getItem('camilla_algebra_data');
+      if (local) {
+        applyData(JSON.parse(local));
+      }
+      document.getElementById('syncStatus').textContent = '💾 Локально';
+    }
+
+    function applyData(data) {
+      if (data.pads) {
+        for (let i in data.pads) {
+          const pad = document.getElementById(`pad-${i}`);
+          if (pad) pad.value = data.pads[i];
+        }
+      }
+      if (data.inputs) {
+        for (let i in data.inputs) {
+          const xEl = document.getElementById(`ex${i}-x`);
+          const yEl = document.getElementById(`ex${i}-y`);
+          if (xEl && data.inputs[i].x) xEl.value = data.inputs[i].x;
+          if (yEl && data.inputs[i].y) yEl.value = data.inputs[i].y;
+        }
+      }
+    }
+
+    document.addEventListener('input', (e) => {
+      if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
+        saveProgress();
+      }
+    });
+
+    window.onload = loadProgress;
+  </script>
+</body>
+</html>
